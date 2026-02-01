@@ -15,123 +15,109 @@
             --white-skill: #f0f0f0;
             --text-dark: #333;
         }
-        body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: var(--bg); color: var(--text-dark); }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: var(--bg); color: var(--text-dark); }
         h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
 
-        /* レイアウト */
-        .container { display: grid; gap: 20px; }
-        .panel { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .panel { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
 
         /* フォーム要素 */
-        label { font-weight: bold; display: block; margin-top: 15px; font-size: 0.9rem; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; background-color: #fff; }
+        label { font-weight: bold; display: block; margin-top: 15px; font-size: 0.85rem; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
         
-        /* グリッドレイアウト */
         .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .subskill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-        
-        /* サブスキル選択のラベル(Lv表示) */
-        .subskill-group label { margin-top: 0; font-size: 0.8rem; color: #666; }
+        .subskill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+        .subskill-group label { margin-top: 0; font-size: 0.75rem; color: #888; }
 
         /* ボタン */
-        .btn { border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: opacity 0.2s; width: 100%; margin-top: 20px; }
+        .btn { border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; width: 100%; margin-top: 20px; }
         .btn-add { background-color: #2ecc71; color: white; }
-        .btn-dl { background-color: var(--primary); color: white; }
-        .btn-imp { background-color: #9b59b6; color: white; }
-        .btn-del { background-color: var(--danger); color: white; width: auto; padding: 5px 12px; font-size: 0.8rem; margin-top: 0;}
-        .btn:hover { opacity: 0.9; }
-
-        /* インポートエリア */
         .io-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-dl { background-color: var(--primary); color: white; flex: 1; }
+        .btn-imp { background-color: #9b59b6; color: white; flex: 1; }
         #file-input { display: none; }
 
-        /* フィルターエリア */
-        .filter-area { margin-bottom: 15px; }
+        /* カードグリッドレイアウト（ここが重要） */
+        #pokemon-list { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 15px; 
+        }
 
-        /* リストカード */
-        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 6px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
-        .card.has-gold { border-left-color: var(--gold-skill); }
+        .card { 
+            background: white; border-radius: 8px; padding: 12px; 
+            border-top: 6px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .card.has-gold { border-top-color: var(--gold-skill); }
         
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
-        .card-title { font-size: 1.2rem; font-weight: bold; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .card-title { font-size: 1.1rem; font-weight: bold; }
+        .btn-del { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.2rem; line-height: 1; }
+        .btn-del:hover { color: var(--danger); }
         
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem; }
-        .info-label { color: #888; font-size: 0.8rem; }
-        
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem; }
         .nature-up { color: #e74c3c; font-weight: bold; }
         .nature-down { color: #3498db; font-weight: bold; }
 
-        .ingredients-display { display: flex; gap: 5px; flex-wrap: wrap; }
-        .ing-badge { background: #f9f9f9; border: 1px solid #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        /* 食材は絵文字のみ */
+        .ing-emoji-list { font-size: 1.2rem; letter-spacing: 2px; }
 
-        .skills-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-        .skill-tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; background: var(--white-skill); border: 1px solid #ddd; }
+        .skills-list { display: flex; flex-wrap: wrap; gap: 4px; }
+        .skill-tag { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; background: var(--white-skill); border: 1px solid #ddd; }
         .skill-gold { background: #fff9c4; border: 1px solid #fbc02d; color: #5f4306; font-weight: bold;}
         .skill-blue { background: #e1f5fe; border: 1px solid #4fc3f7; color: #0277bd; }
-
-        @media (max-width: 600px) {
-            .row-3 { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
 
     <h1>😴 ポケスリ厳選マネージャー</h1>
 
-    <div class="container">
-        <div class="io-actions">
-            <button class="btn btn-dl" onclick="exportData()">💾 保存 (Export)</button>
-            <button class="btn btn-imp" onclick="document.getElementById('file-input').click()">📂 読込 (Import)</button>
-            <input type="file" id="file-input" accept=".json" onchange="importData(this)">
+    <div class="io-actions">
+        <button class="btn btn-dl" onclick="exportData()">💾 保存 (Export)</button>
+        <button class="btn btn-imp" onclick="document.getElementById('file-input').click()">📂 読込 (Import)</button>
+        <input type="file" id="file-input" accept=".json" onchange="importData(this)">
+    </div>
+
+    <div class="panel">
+        <label>ポケモン名</label>
+        <input type="text" id="p-name" placeholder="例: ライチュウ">
+
+        <label>性格</label>
+        <select id="p-nature" onchange="updateNaturePreview()"></select>
+        <div id="nature-preview" style="font-size:0.8rem; margin-top:4px; min-height:1em;"></div>
+
+        <label>食材 (Lv1 / 30 / 60)</label>
+        <div class="row-3">
+            <select id="ing-1" class="ing-select"></select>
+            <select id="ing-30" class="ing-select"></select>
+            <select id="ing-60" class="ing-select"></select>
         </div>
 
-        <div class="panel">
-            <label>ポケモン名</label>
-            <input type="text" id="p-name" placeholder="例: ライチュウ">
-
-            <label>性格（補正を自動表示）</label>
-            <select id="p-nature" onchange="updateNaturePreview()"></select>
-            <div id="nature-preview" style="font-size:0.85rem; margin-top:4px; color:#666; height: 1.2em;"></div>
-
-            <label>食材構成 (Lv1 / Lv30 / Lv60)</label>
-            <div class="row-3">
-                <select id="ing-1" class="ing-select"></select>
-                <select id="ing-30" class="ing-select"></select>
-                <select id="ing-60" class="ing-select"></select>
-            </div>
-
-            <label>サブスキル</label>
-            <div class="subskill-grid">
-                <div class="subskill-group"><label>Lv10</label><select class="subskill-select"></select></div>
-                <div class="subskill-group"><label>Lv25</label><select class="subskill-select"></select></div>
-                <div class="subskill-group"><label>Lv50</label><select class="subskill-select"></select></div>
-                <div class="subskill-group"><label>Lv75</label><select class="subskill-select"></select></div>
-                <div class="subskill-group"><label>Lv100</label><select class="subskill-select"></select></div>
-            </div>
-
-            <button class="btn btn-add" onclick="addPokemon()">ポケモンを登録</button>
+        <label>サブスキル</label>
+        <div class="subskill-grid">
+            <div class="subskill-group"><label>Lv10</label><select class="subskill-select"></select></div>
+            <div class="subskill-group"><label>Lv25</label><select class="subskill-select"></select></div>
+            <div class="subskill-group"><label>Lv50</label><select class="subskill-select"></select></div>
+            <div class="subskill-group"><label>Lv75</label><select class="subskill-select"></select></div>
+            <div class="subskill-group"><label>Lv100</label><select class="subskill-select"></select></div>
         </div>
 
-        <div class="panel">
-            <div class="filter-area">
-                <input type="text" id="search-box" placeholder="🔍 名前やスキルで検索..." onkeyup="loadPokemon()">
-            </div>
-            <div id="pokemon-list"></div>
-        </div>
+        <button class="btn btn-add" onclick="addPokemon()">ポケモンを登録</button>
+    </div>
+
+    <div class="panel">
+        <input type="text" id="search-box" placeholder="🔍 名前・スキル・絵文字で検索..." onkeyup="loadPokemon()" style="margin-bottom:15px;">
+        <div id="pokemon-list"></div>
     </div>
 
     <script>
-        // --- 定数定義 ---
-        
-        // 食材（絵文字付き）
         const INGREDIENTS = [
-            "🍎 特選リンゴ", "🥛 モーモーミルク", "🫘 ワカクサ大豆", "🍯 あまいミツ", 
-            "🌭 マメミート", "🫚 あったかジンジャー", "🍅 あんみんトマト", "🥚 とくせんエッグ", 
-            "🫒 ピュアなオイル", "🥔 ほっこりポテト", "🌿 げきからハーブ", "🌽 ワカクサコーン", 
-            "🍫 リラックスカカオ", "🍄 あじわいキノコ", "🌱 ふといながねぎ", "🍖 おいしいシッポ", "☕ めざましコーヒー"
+            {n:"特選リンゴ", e:"🍎"}, {n:"モーモーミルク", e:"🥛"}, {n:"ワカクサ大豆", e:"🫘"}, {n:"あまいミツ", e:"🍯"},
+            {n:"マメミート", e:"🌭"}, {n:"あったかジンジャー", e:"🫚"}, {n:"あんみんトマト", e:"🍅"}, {n:"とくせんエッグ", e:"🥚"},
+            {n:"ピュアなオイル", e:"🫒"}, {n:"ほっこりポテト", e:"🥔"}, {n:"げきからハーブ", e:"🌿"}, {n:"ワカクサコーン", e:"🌽"},
+            {n:"リラックスカカオ", e:"🍫"}, {n:"あじわいキノコ", e:"🍄"}, {n:"ふといながねぎ", e:"🌱"}, {n:"おいしいシッポ", e:"🍖"}, {n:"めざましコーヒー", e:"☕"}
         ];
 
-        // 性格データ
         const NATURES = {
             "まじめ": {up: null, down: null}, "がんばりや": {up: null, down: null}, "すなお": {up: null, down: null}, "きまぐれ": {up: null, down: null}, "てれや": {up: null, down: null},
             "さみしがり": {up: "お手伝い", down: "元気"}, "いじっぱり": {up: "お手伝い", down: "食材"}, "やんちゃ": {up: "お手伝い", down: "スキル"}, "ゆうかん": {up: "お手伝い", down: "EXP"},
@@ -141,234 +127,117 @@
             "おくびょう": {up: "EXP", down: "お手伝い"}, "せっかち": {up: "EXP", down: "元気"}, "ようき": {up: "EXP", down: "食材"}, "むじゃき": {up: "EXP", down: "スキル"}
         };
 
-        // サブスキルリスト（色判定用）
+        // サブスキルの色分類修正
         const SKILLS_GOLD = ["きのみの数S", "おてつだいボーナス", "睡眠EXPボーナス", "リサーチEXPボーナス", "ゆめのかけらボーナス", "元気回復ボーナス"];
-        const SKILLS_BLUE = ["おてつだいスピードM", "食材確率アップM", "スキル確率アップM", "最大所持数アップL", "スキルレベルアップM", "スキルレベルアップS"];
-        const SKILLS_WHITE = ["おてつだいスピードS", "食材確率アップS", "スキル確率アップS", "最大所持数アップM", "最大所持数アップS"];
+        const SKILLS_BLUE = ["おてつだいスピードM", "食材確率アップM", "スキル確率アップM", "最大所持数アップL", "最大所持数アップM", "スキルレベルアップM"];
+        const SKILLS_WHITE = ["おてつだいスピードS", "食材確率アップS", "スキル確率アップS", "最大所持数アップS", "スキルレベルアップS"];
 
-        // 全スキルリスト（選択肢表示用）
-        const ALL_SKILLS = [...SKILLS_GOLD, ...SKILLS_BLUE, ...SKILLS_WHITE].sort();
-
-        // --- 初期化 ---
         document.addEventListener('DOMContentLoaded', () => {
             initSelects();
             loadPokemon();
         });
 
         function initSelects() {
-            // 性格設定
             const natureSel = document.getElementById('p-nature');
-            Object.keys(NATURES).forEach(n => {
-                const opt = document.createElement('option');
-                opt.value = n;
-                opt.textContent = n;
-                natureSel.appendChild(opt);
-            });
+            Object.keys(NATURES).forEach(n => natureSel.add(new Option(n, n)));
             natureSel.value = "いじっぱり";
             updateNaturePreview();
 
-            // 食材設定
-            const ingSelects = document.querySelectorAll('.ing-select');
-            ingSelects.forEach(sel => {
-                sel.innerHTML = '<option value="">未開放/不明</option>';
-                INGREDIENTS.forEach(ing => {
-                    const opt = document.createElement('option');
-                    opt.value = ing;
-                    opt.textContent = ing;
-                    sel.appendChild(opt);
-                });
+            document.querySelectorAll('.ing-select').forEach(sel => {
+                sel.add(new Option("---", ""));
+                INGREDIENTS.forEach(i => sel.add(new Option(`${i.e} ${i.n}`, i.e)));
             });
 
-            // サブスキル設定
-            const subSelects = document.querySelectorAll('.subskill-select');
-            subSelects.forEach(sel => {
-                sel.innerHTML = '<option value="">---</option>';
-                
-                // 金スキル
-                const grpGold = document.createElement('optgroup');
-                grpGold.label = "金スキル (レア)";
-                SKILLS_GOLD.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s;
-                    grpGold.appendChild(opt);
-                });
-                sel.appendChild(grpGold);
-
-                // 青スキル
-                const grpBlue = document.createElement('optgroup');
-                grpBlue.label = "青スキル (進化後など)";
-                SKILLS_BLUE.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s;
-                    grpBlue.appendChild(opt);
-                });
-                sel.appendChild(grpBlue);
-
-                // 白スキル
-                const grpWhite = document.createElement('optgroup');
-                grpWhite.label = "白スキル";
-                SKILLS_WHITE.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s;
-                    grpWhite.appendChild(opt);
-                });
-                sel.appendChild(grpWhite);
+            document.querySelectorAll('.subskill-select').forEach(sel => {
+                sel.add(new Option("---", ""));
+                const addGrp = (label, list) => {
+                    const grp = document.createElement('optgroup'); grp.label = label;
+                    list.forEach(s => grp.add(new Option(s, s)));
+                    sel.add(grp);
+                };
+                addGrp("金スキル", SKILLS_GOLD);
+                addGrp("青スキル", SKILLS_BLUE);
+                addGrp("白スキル", SKILLS_WHITE);
             });
         }
 
         function updateNaturePreview() {
-            const val = document.getElementById('p-nature').value;
-            const data = NATURES[val];
-            const div = document.getElementById('nature-preview');
-            if (data && data.up) {
-                div.innerHTML = `<span class="nature-up">▲ ${data.up}</span> / <span class="nature-down">▼ ${data.down}</span>`;
-            } else {
-                div.textContent = "補正なし";
-            }
+            const d = NATURES[document.getElementById('p-nature').value];
+            document.getElementById('nature-preview').innerHTML = d.up ? `<span class="nature-up">▲${d.up}</span> <span class="nature-down">▼${d.down}</span>` : "補正なし";
         }
 
-        // --- データ操作 ---
         function addPokemon() {
             const name = document.getElementById('p-name').value;
-            if (!name) return alert("ポケモン名を入力してください");
-
-            // サブスキル収集
-            const skillSelects = document.querySelectorAll('.subskill-select');
-            const skills = Array.from(skillSelects).map(sel => sel.value);
-
-            const pokemon = {
-                id: Date.now(),
-                name: name,
-                nature: document.getElementById('p-nature').value,
-                ingredients: [
-                    document.getElementById('ing-1').value,
-                    document.getElementById('ing-30').value,
-                    document.getElementById('ing-60').value
-                ],
-                subskills: skills,
-                createdAt: new Date().toISOString()
-            };
-
-            let list = getList();
-            list.push(pokemon);
+            if (!name) return alert("名前を入力してください");
+            const skills = Array.from(document.querySelectorAll('.subskill-select')).map(s => s.value);
+            const ings = Array.from(document.querySelectorAll('.ing-select')).map(s => s.value);
+            
+            const list = getList();
+            list.push({ id: Date.now(), name, nature: document.getElementById('p-nature').value, ingredients: ings, subskills: skills });
             saveList(list);
-            
-            // フォームリセット
-            document.getElementById('p-name').value = "";
-            skillSelects.forEach(s => s.value = "");
-            document.querySelectorAll('.ing-select').forEach(s => s.value = "");
-            
-            loadPokemon();
+            location.reload(); // 簡易クリア
         }
 
-        function getList() { return JSON.parse(localStorage.getItem('pokeSleepV2')) || []; }
-        function saveList(list) { localStorage.setItem('pokeSleepV2', JSON.stringify(list)); }
+        function getList() { return JSON.parse(localStorage.getItem('pokeSleepData')) || []; }
+        function saveList(list) { localStorage.setItem('pokeSleepData', JSON.stringify(list)); }
 
-        function deletePokemon(id) {
-            if(!confirm('削除しますか？')) return;
-            let list = getList();
-            list = list.filter(p => p.id !== id);
-            saveList(list);
-            loadPokemon();
-        }
-
-        // --- 表示 ---
         function loadPokemon() {
             const container = document.getElementById('pokemon-list');
             container.innerHTML = "";
+            const search = document.getElementById('search-box').value.toLowerCase();
             
-            const searchText = document.getElementById('search-box').value.toLowerCase();
-            const list = getList();
-
-            const filtered = list.reverse().filter(p => {
-                // 名前、食材、スキルのいずれかにヒットすれば表示
-                const target = (p.name + p.ingredients.join('') + p.subskills.join('')).toLowerCase();
-                return target.includes(searchText);
-            });
-
-            filtered.forEach(p => {
-                const hasKinomiS = p.subskills.includes("きのみの数S");
+            getList().reverse().filter(p => (p.name + p.ingredients.join('') + p.subskills.join('')).toLowerCase().includes(search)).forEach(p => {
                 const card = document.createElement('div');
-                card.className = `card ${hasKinomiS ? 'has-gold' : ''}`;
-
-                // 性格表示
-                const nData = NATURES[p.nature] || {up:null, down:null};
-                const natureDisplay = nData.up 
-                    ? `<span class="nature-up">▲${nData.up}</span> <span class="nature-down">▼${nData.down}</span>` 
-                    : `<span>補正なし</span>`;
-
-                // サブスキル表示構築
-                let skillsHtml = "";
-                p.subskills.forEach((s, idx) => {
-                    if(!s) return; // 未選択はスキップ
-                    let cls = "skill-tag";
-                    if (SKILLS_GOLD.includes(s)) cls += " skill-gold";
-                    else if (SKILLS_BLUE.includes(s)) cls += " skill-blue";
-                    
-                    const lvLabel = [10, 25, 50, 75, 100][idx];
-                    skillsHtml += `<span class="${cls}">${lvLabel}:${s}</span>`;
-                });
+                card.className = `card ${p.subskills.includes("きのみの数S") ? 'has-gold' : ''}`;
+                
+                const n = NATURES[p.nature];
+                const natureHtml = n.up ? `<span class="nature-up">▲${n.up[0]}</span><span class="nature-down">▼${n.down[0]}</span>` : '--';
 
                 card.innerHTML = `
                     <div class="card-header">
                         <span class="card-title">${p.name}</span>
-                        <button class="btn btn-del" onclick="deletePokemon(${p.id})">削除</button>
+                        <button class="btn-del" onclick="deletePokemon(${p.id})">×</button>
                     </div>
-                    
-                    <div class="info-grid">
-                        <div>
-                            <div class="info-label">性格: ${p.nature}</div>
-                            <div>${natureDisplay}</div>
-                        </div>
-                        <div>
-                            <div class="info-label">食材</div>
-                            <div class="ingredients-display">
-                                ${p.ingredients.map(i => i ? `<span class="ing-badge">${i}</span>` : '').join('')}
-                            </div>
-                        </div>
+                    <div class="info-row">
+                        <span style="font-weight:bold; color:#666;">${p.nature} ${natureHtml}</span>
+                        <div class="ing-emoji-list">${p.ingredients.join('')}</div>
                     </div>
-
-                    <div style="margin-top:10px;">
-                        <div class="info-label">サブスキル</div>
-                        <div class="skills-list">${skillsHtml}</div>
+                    <div class="skills-list">
+                        ${p.subskills.map((s, idx) => {
+                            if(!s) return '';
+                            let cls = "skill-tag";
+                            if(SKILLS_GOLD.includes(s)) cls += " skill-gold";
+                            else if(SKILLS_BLUE.includes(s)) cls += " skill-blue";
+                            return `<span class="${cls}">${s}</span>`;
+                        }).join('')}
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // --- Import/Export ---
+        function deletePokemon(id) {
+            if(confirm('削除しますか？')) {
+                saveList(getList().filter(p => p.id !== id));
+                loadPokemon();
+            }
+        }
+
         function exportData() {
-            const list = getList();
-            const blob = new Blob([JSON.stringify(list, null, 2)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
+            const blob = new Blob([JSON.stringify(getList(), null, 2)], {type: "application/json"});
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `pokesleep_v2_${new Date().toISOString().slice(0,10)}.json`;
+            a.href = URL.createObjectURL(blob);
+            a.download = `pokesleep_data_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
-            URL.revokeObjectURL(url);
         }
 
         function importData(input) {
-            const file = input.files[0];
-            if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const json = JSON.parse(e.target.result);
-                    if (!Array.isArray(json)) throw new Error("データ形式が違います");
-                    if(confirm(`現在のデータを上書きして読み込みますか？`)) {
-                        saveList(json);
-                        loadPokemon();
-                        alert("完了！");
-                    }
-                } catch (err) { alert("エラー: " + err.message); }
-                input.value = '';
+            reader.onload = (e) => {
+                saveList(JSON.parse(e.target.result));
+                loadPokemon();
             };
-            reader.readAsText(file);
+            reader.readAsText(input.files[0]);
         }
     </script>
 </body>
