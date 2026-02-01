@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポケスリ厳選管理マネージャー</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --danger: #ff6b6b;
+            --gold-skill: #ffd700;
+            --blue-skill: #87ceeb;
+            --text-dark: #333;
+        }
+        body { font-family: "Helvetica Neue", Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background-color: var(--bg); color: var(--text-dark); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+
+        /* レイアウト */
+        .container { display: grid; gap: 20px; }
+        .panel { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        /* フォーム要素 */
+        label { font-weight: bold; display: block; margin-top: 10px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        
+        /* グリッドレイアウト（食材・サブスキル用） */
+        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .subskill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+
+        /* ボタン */
+        .btn { border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: opacity 0.2s; width: 100%; margin-top: 15px; }
+        .btn-add { background-color: #2ecc71; color: white; }
+        .btn-dl { background-color: var(--primary); color: white; }
+        .btn-imp { background-color: #9b59b6; color: white; }
+        .btn-del { background-color: var(--danger); color: white; width: auto; padding: 5px 12px; font-size: 0.8rem; margin-top: 0;}
+        .btn:hover { opacity: 0.9; }
+
+        /* インポートエリア */
+        .io-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+        #file-input { display: none; }
+
+        /* フィルターエリア */
+        .filter-area { margin-bottom: 15px; }
+
+        /* リストカード */
+        .card { background: white; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 6px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        /* きのみS持ちなどは枠線を金色に */
+        .card.has-gold { border-left-color: var(--gold-skill); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
+        .card-title { font-size: 1.2rem; font-weight: bold; }
+        .card-sp { font-size: 0.9rem; color: #666; background: #eee; padding: 2px 8px; border-radius: 10px; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem; }
+        .info-label { color: #888; font-size: 0.8rem; }
+        
+        .nature-up { color: #e74c3c; font-weight: bold; } /* 上昇補正は赤 */
+        .nature-down { color: #3498db; font-weight: bold; } /* 下降補正は青 */
+
+        .ingredients-display { display: flex; gap: 5px; }
+        .ing-icon { background: #f9f9f9; border: 1px solid #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+
+        .skills-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .skill-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; background: #eee; }
+        .skill-gold { background: #fff59d; border: 1px solid #fbc02d; color: #5f4306; font-weight: bold;}
+        .skill-blue { background: #e1f5fe; border: 1px solid #4fc3f7; color: #0277bd; }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 600px) {
+            .row-3, .row-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>😴 ポケスリ厳選マネージャー</h1>
+
+    <div class="container">
+        <div class="io-actions">
+            <button class="btn btn-dl" onclick="exportData()">💾 保存 (Export)</button>
+            <button class="btn btn-imp" onclick="document.getElementById('file-input').click()">📂 読込 (Import)</button>
+            <input type="file" id="file-input" accept=".json" onchange="importData(this)">
+        </div>
+
+        <div class="panel">
+            <div class="row-2">
+                <div>
+                    <label>ポケモン名</label>
+                    <input type="text" id="p-name" placeholder="例: ライチュウ">
+                </div>
+                <div>
+                    <label>SP</label>
+                    <input type="number" id="p-sp" placeholder="1200">
+                </div>
+            </div>
+
+            <label>性格（補正を自動表示）</label>
+            <select id="p-nature" onchange="updateNaturePreview()"></select>
+            <div id="nature-preview" style="font-size:0.85rem; margin-top:4px; color:#666; height: 1.2em;"></div>
+
+            <label>食材 (Lv1 / Lv30 / Lv60)</label>
+            <div class="row-3">
+                <select id="ing-1"></select>
+                <select id="ing-30"></select>
+                <select id="ing-60"></select>
+            </div>
+
+            <label>サブスキル (Lv10, 25, 50, 75, 100)</label>
+            <div class="subskill-grid">
+                <input type="text" class="subskill-input" placeholder="Lv10">
+                <input type="text" class="subskill-input" placeholder="Lv25">
+                <input type="text" class="subskill-input" placeholder="Lv50">
+                <input type="text" class="subskill-input" placeholder="Lv75">
+                <input type="text" class="subskill-input" placeholder="Lv100">
+            </div>
+
+            <button class="btn btn-add" onclick="addPokemon()">ポケモンを登録</button>
+        </div>
+
+        <div class="panel">
+            <div class="filter-area">
+                <input type="text" id="search-box" placeholder="🔍 名前やスキルで検索..." onkeyup="loadPokemon()">
+            </div>
+            <div id="pokemon-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- データ定義 ---
+        const INGREDIENTS = ["りんご", "ミルク", "大豆", "ミツ", "肉", "ジンジャー", "トマト", "卵", "オイル", "ポテト", "ハーブ", "コーン", "カカオ", "きのこ", "ネギ", "しっぽ", "コーヒー"];
+        
+        const NATURES = {
+            "まじめ": {up: null, down: null}, "がんばりや": {up: null, down: null}, "すなお": {up: null, down: null}, "きまぐれ": {up: null, down: null}, "てれや": {up: null, down: null},
+            "さみしがり": {up: "お手伝い", down: "元気"}, "いじっぱり": {up: "お手伝い", down: "食材"}, "やんちゃ": {up: "お手伝い", down: "スキル"}, "ゆうかん": {up: "お手伝い", down: "EXP"},
+            "ずぶとい": {up: "元気", down: "お手伝い"}, "わんぱく": {up: "元気", down: "食材"}, "のうてんき": {up: "元気", down: "スキル"}, "のんき": {up: "元気", down: "EXP"},
+            "ひかえめ": {up: "食材", down: "お手伝い"}, "おっとり": {up: "食材", down: "元気"}, "うっかりや": {up: "食材", down: "スキル"}, "れいせい": {up: "食材", down: "EXP"},
+            "おだやか": {up: "スキル", down: "お手伝い"}, "おとなしい": {up: "スキル", down: "元気"}, "しんちょう": {up: "スキル", down: "食材"}, "なまいき": {up: "スキル", down: "EXP"},
+            "おくびょう": {up: "EXP", down: "お手伝い"}, "せっかち": {up: "EXP", down: "元気"}, "ようき": {up: "EXP", down: "食材"}, "むじゃき": {up: "EXP", down: "スキル"}
+        };
+
+        // 色付けするキーワード
+        const GOLD_SKILLS = ["きのみS", "おてつだいボーナス", "睡眠EXPボーナス", "リサーチEXPボーナス", "ゆめのかけらボーナス", "元気回復ボーナス"];
+        const BLUE_SKILLS = ["おてつだいスピードM", "食材確率アップM", "スキル確率アップM", "最大所持数アップL", "スキルレベルアップM", "スキルレベルアップS"]; // M系など
+
+        // --- 初期化処理 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initSelects();
+            loadPokemon();
+        });
+
+        function initSelects() {
+            // 性格の生成
+            const natureSel = document.getElementById('p-nature');
+            Object.keys(NATURES).forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.textContent = n;
+                natureSel.appendChild(opt);
+            });
+            // デフォルト設定
+            natureSel.value = "いじっぱり";
+            updateNaturePreview();
+
+            // 食材の生成
+            const createIngOpt = (id) => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = '<option value="">未定</option>';
+                INGREDIENTS.forEach(ing => {
+                    const opt = document.createElement('option');
+                    opt.value = ing;
+                    opt.textContent = ing;
+                    sel.appendChild(opt);
+                });
+            };
+            createIngOpt('ing-1');
+            createIngOpt('ing-30');
+            createIngOpt('ing-60');
+        }
+
+        function updateNaturePreview() {
+            const val = document.getElementById('p-nature').value;
+            const data = NATURES[val];
+            const div = document.getElementById('nature-preview');
+            if (data && data.up) {
+                div.innerHTML = `<span class="nature-up">▲ ${data.up}</span> / <span class="nature-down">▼ ${data.down}</span>`;
+            } else {
+                div.textContent = "補正なし";
+            }
+        }
+
+        // --- CRUD操作 ---
+        function addPokemon() {
+            const name = document.getElementById('p-name').value;
+            if (!name) return alert("ポケモン名を入力してください");
+
+            // サブスキル入力の収集
+            const skillInputs = document.querySelectorAll('.subskill-input');
+            const skills = Array.from(skillInputs).map(input => input.value.trim());
+
+            const pokemon = {
+                id: Date.now(),
+                name: name,
+                sp: document.getElementById('p-sp').value,
+                nature: document.getElementById('p-nature').value,
+                ingredients: [
+                    document.getElementById('ing-1').value,
+                    document.getElementById('ing-30').value,
+                    document.getElementById('ing-60').value
+                ],
+                subskills: skills,
+                createdAt: new Date().toISOString()
+            };
+
+            let list = getList();
+            list.push(pokemon);
+            saveList(list);
+            
+            // フォームクリア
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-sp').value = "";
+            skillInputs.forEach(i => i.value = "");
+            
+            loadPokemon();
+        }
+
+        function getList() {
+            return JSON.parse(localStorage.getItem('pokeSleepFull')) || [];
+        }
+
+        function saveList(list) {
+            localStorage.setItem('pokeSleepFull', JSON.stringify(list));
+        }
+
+        function deletePokemon(id) {
+            if(!confirm('削除しますか？')) return;
+            let list = getList();
+            list = list.filter(p => p.id !== id);
+            saveList(list);
+            loadPokemon();
+        }
+
+        // --- 表示ロジック ---
+        function loadPokemon() {
+            const container = document.getElementById('pokemon-list');
+            container.innerHTML = "";
+            
+            const searchText = document.getElementById('search-box').value.toLowerCase();
+            const list = getList();
+
+            // 逆順（新しい順）にしてフィルター
+            const filtered = list.reverse().filter(p => {
+                const searchTarget = (p.name + p.subskills.join(' ')).toLowerCase();
+                return searchTarget.includes(searchText);
+            });
+
+            filtered.forEach(p => {
+                const hasKinomiS = p.subskills.some(s => s.includes("きのみS"));
+                const card = document.createElement('div');
+                card.className = `card ${hasKinomiS ? 'has-gold' : ''}`;
+
+                // 性格データの取得
+                const nData = NATURES[p.nature] || {up:null, down:null};
+                const natureDisplay = nData.up 
+                    ? `<span class="nature-up">▲${nData.up}</span> <span class="nature-down">▼${nData.down}</span>` 
+                    : `<span>補正なし</span>`;
+
+                // スキルのHTML生成
+                let skillsHtml = "";
+                p.subskills.forEach((s, idx) => {
+                    if(!s) return;
+                    let cls = "skill-tag";
+                    // 部分一致で判定（"おてつだいボーナス"などが含まれていれば）
+                    if (GOLD_SKILLS.some(g => s.includes(g))) cls += " skill-gold";
+                    else if (BLUE_SKILLS.some(b => s.includes(b))) cls += " skill-blue";
+                    
+                    const lvLabel = [10, 25, 50, 75, 100][idx];
+                    skillsHtml += `<span class="${cls}">${lvLabel}:${s}</span>`;
+                });
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="card-title">${p.name}</span>
+                        <div>
+                            <span class="card-sp">SP: ${p.sp || '-'}</span>
+                            <button class="btn btn-del" onclick="deletePokemon(${p.id})">削除</button>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div>
+                            <div class="info-label">性格: ${p.nature}</div>
+                            <div>${natureDisplay}</div>
+                        </div>
+                        <div>
+                            <div class="info-label">食材</div>
+                            <div class="ingredients-display">
+                                ${p.ingredients.map(i => i ? `<span class="ing-icon">${i}</span>` : '').join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <div class="info-label">サブスキル</div>
+                        <div class="skills-list">${skillsHtml}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- インポート/エクスポート ---
+        function exportData() {
+            const list = getList();
+            const dataStr = JSON.stringify(list, null, 2);
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pokesleep_data_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    if (!Array.isArray(json)) throw new Error("無効なデータ形式です");
+                    
+                    if(confirm(`現在のデータを上書きし、${json.length}件のデータを読み込みますか？`)) {
+                        saveList(json);
+                        loadPokemon();
+                        alert("読み込み完了しました！");
+                    }
+                } catch (err) {
+                    alert("ファイルの読み込みに失敗しました: " + err.message);
+                }
+                // inputをリセットして同じファイルを再選択できるようにする
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
