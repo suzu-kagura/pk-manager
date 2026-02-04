@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ポケスリ厳選マネージャー</title>
     <style>
-        /* スタイルは前回と同様のため省略（そのままお使いいただけます） */
+        /* スタイルは前回と同様 */
         :root {
             --bg: #f0f4f8; --card-bg: #ffffff; --text-dark: #333;
             --normal: #A8A878; --fire: #F08030; --water: #6890F0; --grass: #78C850;
@@ -67,10 +67,9 @@
     </div>
 
     <div class="panel">
-        <label>ポケモン選択</label>
-        <select id="p-name-select" onchange="onPokemonChange()">
-            <option value="">選択してください</option>
-        </select>
+        <label>ポケモン名を入力または選択</label>
+        <input list="pokemon-options" id="p-name-input" placeholder="例: ピカチュウ" onchange="onPokemonChange()">
+        <datalist id="pokemon-options"></datalist>
 
         <label>性格</label>
         <select id="p-nature"></select>
@@ -112,12 +111,19 @@
         };
 
         window.onload = () => {
-            const nameSel = document.getElementById('p-name-select');
+            // datalistに候補を追加
+            const dl = document.getElementById('pokemon-options');
             if(typeof POKEMON_DB !== 'undefined') {
-                POKEMON_DB.forEach(p => nameSel.add(new Option(p.name, p.name)));
+                POKEMON_DB.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.name;
+                    dl.appendChild(opt);
+                });
             }
+
             const natureSel = document.getElementById('p-nature');
             Object.keys(NATURES).forEach(n => natureSel.add(new Option(`${n} (${NATURES[n]})`, n)));
+            
             const subContainer = document.getElementById('subskill-inputs');
             [10, 25, 50, 75, 100].forEach(lv => {
                 const div = document.createElement('div');
@@ -134,10 +140,12 @@
             loadCards();
         };
 
+        // 名前入力が確定した時に食材をセット
         function onPokemonChange() {
-            const name = document.getElementById('p-name-select').value;
+            const name = document.getElementById('p-name-input').value;
             const data = POKEMON_DB.find(p => p.name === name);
             if(!data) return;
+
             [document.getElementById('ing-1'), document.getElementById('ing-30'), document.getElementById('ing-60')].forEach((sel, idx) => {
                 sel.innerHTML = "";
                 const opts = [data.ings.A];
@@ -150,9 +158,10 @@
         }
 
         function addPokemon() {
-            const name = document.getElementById('p-name-select').value;
-            if(!name) return;
+            const name = document.getElementById('p-name-input').value;
             const data = POKEMON_DB.find(p => p.name === name);
+            if(!data) return alert("正しいポケモン名を入力してください");
+            
             const pokemon = {
                 id: Date.now(),
                 name: name,
@@ -164,7 +173,7 @@
             const list = JSON.parse(localStorage.getItem('ps_data') || '[]');
             list.push(pokemon);
             localStorage.setItem('ps_data', JSON.stringify(list));
-            document.getElementById('search-input').value = ""; 
+            document.getElementById('p-name-input').value = ""; // 入力欄リセット
             loadCards();
         }
 
@@ -175,17 +184,8 @@
             let list = JSON.parse(localStorage.getItem('ps_data') || '[]');
             
             const filtered = list.reverse().filter(p => {
-                // 食材の絵文字を食材名に変換して検索文字列に含める
                 const ingNames = p.ings.map(emoji => ING_NAME_MAP[emoji] || "").join('');
-                
-                const searchText = (
-                    p.name + 
-                    p.nature + 
-                    p.ings.join('') + // 絵文字での検索も一応残す
-                    ingNames +        // 「リンゴ」などの名前検索を可能にする
-                    p.skills.join('')
-                ).toLowerCase();
-                
+                const searchText = (p.name + p.nature + p.ings.join('') + ingNames + p.skills.join('')).toLowerCase();
                 return searchText.includes(keyword);
             });
 
